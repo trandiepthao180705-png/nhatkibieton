@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhật Ký Biết Ơn 🌱</title>
+    <style>
+        :root {
+            --bg-color: #FDF2F4;
+            --card-bg: #ffffff;
+            --text-main: #5D4037;
+            --text-muted: #FFB7C5; 
+            --primary: #FF85A1;
+            --danger: #f87171;
+            --shadow: rgba(255, 182, 197, 0.3);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scrollbar-width: none;
+        }
+        *::-webkit-scrollbar { display: none; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 380px;
+            height: 720px;
+            border: 10px solid white;
+            border-radius: 48px;
+            box-shadow: 0 20px 50px var(--shadow);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 32px 32px 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .header-content {
+            display: flex;
+            flex-direction: column-reverse; /* Put date above title */
+        }
+
+        .header h1 {
+            font-size: 30px;
+            color: var(--primary);
+            margin-top: 4px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .date-display {
+            font-size: 14px;
+            color: var(--text-main);
+            opacity: 0.6;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            background: #FFF0F3;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .input-view {
+            padding: 16px 32px;
+        }
+
+        .input-group {
+            background: #FFF5F7;
+            border: 1px solid #FFD1DC;
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .actions-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+        }
+
+        .emoji-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .emoji-btn {
+            background: white;
+            border: 2px solid transparent;
+            font-size: 20px;
+            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .emoji-btn.active {
+            border-color: var(--primary);
+            background: #FFF0F3;
+            transform: translateY(-2px);
+        }
+
+        .emoji-btn:hover:not(.active) {
+            transform: translateY(-2px);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: 10px;
+            display: none; 
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.3);
+        }
+
+        .save-btn:hover {
+            transform: scale(1.05);
+        }
+        .save-btn:active {
+            transform: scale(0.95);
+        }
+
+        .entries-view {
+            flex: 1;
+            padding: 16px 32px 32px 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .entries-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+        }
+
+        .entries-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 32px; /* space for gradient */
+        }
+
+        .entry-card {
+            background: white;
+            border: 1px solid #FFF0F3;
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            animation: slideUp 0.4s ease-out forwards;
+            position: relative;
+            transition: box-shadow 0.2s;
+        }
+
+        .entry-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .entry-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .entry-emoji {
+            font-size: 24px;
+            padding-top: 4px;
+        }
+
+        .entry-content {
+            flex: 1;
+        }
+
+        .entry-text {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 4px;
+            color: var(--text-main);
+            padding-right: 24px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .entry-time {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0;
+            padding: 4px;
+        }
+
+        .delete-btn:hover {
+            color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 0;
+            opacity: 0.6;
+        }
+        
+        .empty-state-icon {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state-text {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .fade-bottom {
+            height: 24px;
+            background: linear-gradient(to top, white, transparent);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        /* Modal Custom Styles */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(93, 64, 55, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            width: 85%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(255, 133, 161, 0.2);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel {
+            background: #FFF0F3;
+            color: var(--text-main);
+        }
+
+        .btn-cancel:hover {
+            background: #FFE6eb;
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 1. Tự động hiển thị ngày tháng ở trên cùng -->
+    <div class="header">
+        <div class="header-content">
+            <h1>Nhật Ký<br>Biết Ơn ✨</h1>
+            <div class="date-display" id="dateDisplay"></div>
+        </div>
+        <div class="header-icon">🌸</div>
+    </div>
+
+    <div class="input-view">
+        <div class="input-group">
+            <div class="input-label">Hôm nay bạn biết ơn điều gì?</div>
+            <!-- Ô nhập -->
+            <textarea id="journalInput" placeholder="Viết điều gì đó khiến bạn mỉm cười..."></textarea>
+            
+            <div class="actions-row">
+                <!-- 4 nút chọn emoji -->
+                <div class="emoji-selector" id="emojiSelector">
+                    <button class="emoji-btn active" data-emoji="😊" title="Vui vẻ">😊</button>
+                    <button class="emoji-btn" data-emoji="🥰" title="Hạnh phúc">🥰</button>
+                    <button class="emoji-btn" data-emoji="🌿" title="Bình yên">🌿</button>
+                    <button class="emoji-btn" data-emoji="⭐" title="Trân trọng">⭐</button>
+                </div>
+                <!-- Nút lưu -->
+                <button class="save-btn" id="saveBtn">Lưu Lại</button>
+            </div>
+            
+            <!-- Xử lí lỗi -->
+            <div class="error-msg" id="errorMsg">Vui lòng nhập nội dung bạn nhé! ❤️</div>
+        </div>
+    </div>
+
+    <!-- Hiển thị danh sách -->
+    <div class="entries-view">
+        <h3 class="entries-title">Những khoảnh khắc đã lưu</h3>
+        <div class="entries-container" id="entriesContainer">
+            <!-- Nội dung nhật ký sẽ được render vào đây -->
+        </div>
+    </div>
+    
+    <div class="fade-bottom"></div>
+    
+    <!-- Custom Modal Confirm -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box">
+            <div class="modal-title">Xóa nhật ký?</div>
+            <div class="modal-desc">Bạn có chắc chắn muốn xóa kỷ niệm này không?</div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" id="cancelDeleteBtn">Không</button>
+                <button class="modal-btn btn-delete" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Tự động hiển thị ngày tháng
+    function updateDate() {
+        const dateElement = document.getElementById('dateDisplay');
+        const options = { weekday: 'long', day: 'numeric', month: 'long' };
+        const today = new Date();
+        dateElement.textContent = today.toLocaleDateString('vi-VN', options);
+    }
+    updateDate();
+
+    // 2. Logic chọn UI Emoji
+    let selectedEmoji = '😊'; // Default
+    const emojiBtns = document.querySelectorAll('.emoji-btn');
+    
+    emojiBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Remove active class from all
+            emojiBtns.forEach(b => b.classList.remove('active'));
+            // Add to clicked
+            const target = e.currentTarget;
+            target.classList.add('active');
+            selectedEmoji = target.dataset.emoji;
+        });
+    });
+
+    // 3. Sử dụng localStorage để lưu và hiển thị danh sách nhật kí
+    let entries = JSON.parse(localStorage.getItem('my_gratitude_journal')) || [];
+    
+    const journalInput = document.getElementById('journalInput');
+    const saveBtn = document.getElementById('saveBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const entriesContainer = document.getElementById('entriesContainer');
+
+    // 4. Hàm hiển thị các mục nhật kí đã lưu
+    function renderEntries() {
+        entriesContainer.innerHTML = '';
+        
+        if (entries.length === 0) {
+            entriesContainer.innerHTML = `
+                <div class="empty-state">
+                    <span class="empty-state-icon">☁️</span>
+                    <p class="empty-state-text">Chưa có nhật ký nào.<br>Bắt đầu ngày mới bằng sự biết ơn!</p>
+                </div>`;
+            return;
+        }
+
+        entries.forEach((entry, index) => {
+            // Tạo Card cho mỗi mục
+            const card = document.createElement('div');
+            card.className = 'entry-card';
+            card.innerHTML = `
+                <div class="entry-emoji">${entry.emoji}</div>
+                <div class="entry-content">
+                    <p class="entry-text">${entry.text}</p>
+                    <span class="entry-time">Hôm nay • ${entry.time}</span>
+                </div>
+                <button class="delete-btn" onclick="deleteEntry(${index})" title="Xóa nhật ký">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            entriesContainer.appendChild(card);
+        });
+    }
+
+    // Render lần đầu khi tải form
+    renderEntries();
+
+    // Logic xử lý khi nhấn Nút Lưu
+    saveBtn.addEventListener('click', () => {
+        const text = journalInput.value.trim();
+        
+        // 5. Xử lí lỗi nếu người dùng bỏ trống ô nhập
+        if (!text) {
+            errorMsg.style.display = 'block';
+            return;
+        }
+        
+        // Xóa thông báo lỗi nếu đã nhập
+        errorMsg.style.display = 'none';
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+        const newEntry = {
+            id: Date.now(),
+            text: text,
+            emoji: selectedEmoji,
+            time: timeString
+        };
+
+        // Thêm vào đầu mảng
+        entries.unshift(newEntry);
+        localStorage.setItem('my_gratitude_journal', JSON.stringify(entries));
+        
+        // Dọn input, giữ nguyên emoji đã chọn và render lại
+        journalInput.value = '';
+        renderEntries();
+    });
+
+    // Ẩn lỗi khi người dùng bắt đầu gõ lại
+    journalInput.addEventListener('input', () => {
+        if (journalInput.value.trim()) {
+            errorMsg.style.display = 'none';
+        }
+    });
+
+    // Custom Modal Logic
+    const deleteModal = document.getElementById('deleteModal');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    let entryToDeleteIndex = null;
+
+    // 4. Cho phép xóa từng mục
+    window.deleteEntry = function(index) {
+        entryToDeleteIndex = index;
+        deleteModal.classList.add('active');
+    }
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        deleteModal.classList.remove('active');
+        entryToDeleteIndex = null;
+    });
+
+    confirmDeleteBtn.addEventListener('click', () => {
+        if (entryToDeleteIndex !== null) {
+            let currentEntries = JSON.parse(localStorage.getItem('my_gratitude_journal')) || [];
+            currentEntries.splice(entryToDeleteIndex, 1);
+            entries = currentEntries; // Synchronize memory
+            localStorage.setItem('my_gratitude_journal', JSON.stringify(currentEntries));
+            renderEntries();
+        }
+        deleteModal.classList.remove('active');
+        entryToDeleteIndex = null;
+    });
+</script>
+</body>
+</html>
+
