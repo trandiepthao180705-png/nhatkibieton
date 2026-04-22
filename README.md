@@ -4,7 +4,7 @@
 
 ## 📸 Ảnh chụp màn hình
 
-*(Bạn hãy chụp ảnh trang web chạy trên máy của bạn và thay thế tên file `screenshot.png` dưới đây nhé)*
+<img width="1407" height="725" alt="화면 캡처 2026-04-22 122756" src="https://github.com/user-attachments/assets/483a78f7-920f-4970-b4cb-71e0ea6cadcf" />
 
 ![Giao diện Nhật Ký Biết Ơn](screenshot.png)
 
